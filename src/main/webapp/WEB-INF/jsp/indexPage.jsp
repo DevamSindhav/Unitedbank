@@ -1,4 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -157,7 +159,7 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 40px;
-            margin-top: -50px; 
+            margin-top: -50px;
         }
 
         .feature-card {
@@ -199,41 +201,30 @@
             <span>🏦</span> UNITED BANK
         </div>
         <div style="display: flex; gap: 30px;">
-            <a href="login.jsp" style="text-decoration:none; color: var(--text-dark); font-weight:600;">Support</a>
-            <a href="login.jsp" style="text-decoration:none; color: var(--text-dark); font-weight:600;">Security</a>
+            <a href="/login" style="text-decoration:none; color: var(--text-dark); font-weight:600;">Support</a>
+            <a href="/login" style="text-decoration:none; color: var(--text-dark); font-weight:600;">Security</a>
         </div>
     </nav>
 
-    <% 
-        String status = request.getParameter("status");
-        String error = request.getParameter("error");
-        
-        if (status != null || error != null) {
-    %>
+    <c:if test="${not empty param.accountDeleted or not empty error}">
         <div class="alert-container">
-            <% if (status != null) { 
-                String displayMsg = "Operation successful.";
-                if(status.equals("logged_out")) displayMsg = "You have been successfully securely logged out.";
-                else if(status.equals("account_deleted")) displayMsg = "Account deleted succesfuly!";
-            %>
-                <div class="alert-box alert-success"><span>✅</span> <%= displayMsg %></div>
+            <c:if test="${not empty param.accountDeleted}">
+                <div class="alert-box alert-success"><span>✅</span> Account deleted successfully!</div>
+            </c:if>
             
-            <% } else if (error != null) { 
-                String displayMsg = "An unexpected error occurred.";
-                if(error.equals("unauthorized")) displayMsg = "Please log in to access your account.";
-            %>
-                <div class="alert-box alert-error"><span>⚠️</span> <%= displayMsg %></div>
-            <% } %>
+            <c:if test="${not empty error}">
+                <div class="alert-box alert-error"><span>⚠️</span> ${error}</div>
+            </c:if>
         </div>
-    <% } %>
+    </c:if>
 
     <section class="hero">
         <h1>Welcome to the Future of Banking</h1>
         <p>Experience seamless, secure, and smart financial management with United Bank. Your journey to financial freedom starts here.</p>
         
         <div class="cta-container">
-            <a href="register.jsp" class="btn btn-register">Open New Account</a>
-            <a href="login.jsp" class="btn btn-login">Customer/Admin Login</a>
+            <a href="/register" class="btn btn-register">Open New Account</a>
+            <a href="/login" class="btn btn-login">Customer/Admin Login</a>
         </div>
     </section>
 

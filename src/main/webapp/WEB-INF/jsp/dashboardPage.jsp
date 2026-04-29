@@ -1,16 +1,7 @@
-<%@ page import="com.bank.Unitedbank.entity.Customer,com.bank.Unitedbank.entity.Transaction, java.util.List, java.math.BigDecimal" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%
-    // We grab the data package prepared by DashBoardServlet
-    Customer customer = (Customer) request.getAttribute("customer");
-    List<Transaction> miniStatement = (List<Transaction>) request.getAttribute("miniStatement");
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
-    // If the customer object is missing
-    if (customer == null) {
-        response.sendRedirect("DashBoardServlet");
-        return;
-    }
-%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -42,7 +33,7 @@
             box-shadow: var(--shadow);
         }
 
-        /* PROFILE DROPDOWN MENU */
+        /* PROFILE DROPDOWN MENU - Restored exact styling */
         .dropdown { position: relative; display: inline-block; }
 
         .profile-btn {
@@ -83,8 +74,6 @@
         }
 
         .dropdown-content a:hover { background-color: #f8fafc; }
-        
-        /* The JS will toggle this class instead of using hover */
         .dropdown-content.show { display: block; }
 
         .container { max-width: 1100px; margin: 30px auto; padding: 0 20px; }
@@ -118,9 +107,8 @@
             from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        /* --------------------------------- */
 
-        /* BALANCE SECTION */
+        /* BALANCE SECTION - Restored exact style */
         .balance-card {
             background: linear-gradient(135deg, var(--primary-navy) 0%, var(--accent-blue) 100%);
             color: white;
@@ -200,16 +188,16 @@
     
     <div style="display: flex; align-items: center; gap: 20px;">
         <div style="font-size: 0.9rem;">
-            Welcome, <strong><%= customer.getFullName() %></strong>
+            Welcome, <strong>${customerProfile.fullName}</strong>
         </div>
         
         <div class="dropdown">
             <div class="profile-btn" onclick="toggleDropdown()">⚙️ Profile ▼</div>
             <div id="profileMenu" class="dropdown-content">
-                <a href="changepassword.jsp">🔑 Change Password</a>
-                <a href="changepin.jsp">🔢 Change PIN</a>
-                <a href="LogoutServlet">🚪 Logout</a>
-                <a href="deleteaccount.jsp" style="color: var(--withdraw-red); border-top: 1px solid #f0f2f5;">⚠️ Delete Account</a>
+                <a href="/updatePassword">🔑 Change Password</a>
+                <a href="/updatePin">🔢 Change PIN</a>
+                <a href="/logout">🚪 Logout</a>
+                <a href="/deleteAccount" style="color: var(--withdraw-red); border-top: 1px solid #f0f2f5;">⚠️ Delete Account</a>
             </div>
         </div>
     </div>
@@ -217,53 +205,43 @@
 
 <div class="container">
 
-    <% 
-        String status = request.getParameter("status");
-        String error = request.getParameter("error");
-        
-        if (status != null) { 
-            String displayMsg = "Transaction Successful! Your account has been updated.";
-            if(status.equals("pin_updated")) displayMsg = "Your security PIN has been updated successfully.";
-    %>
-        <div class="alert-box alert-success"><span>✅</span> <%= displayMsg %></div>
-        
-    <%  } 
-        else if (error != null) { 
-            String displayMsg = "An error occurred: " + error.replace("_", " ");
-            if(error.equals("server_error")) displayMsg = "A server error occurred. Please try again later.";
-    %>
-        <div class="alert-box alert-error"><span>⚠️</span> <%= displayMsg %></div>
-    <%  } %>
+    <c:if test="${not empty error}">
+        <div class="alert-box alert-error"><span>⚠️</span> ${error}</div>
+    </c:if>
+
+    <c:if test="${not empty param.success}">
+        <div class="alert-box alert-success"><span>✅</span> ${param.success}</div>
+    </c:if>
 
     <div class="balance-card">
         <div>
             <h3 style="margin:0; opacity:0.8; font-weight:400;">Current Balance</h3>
-            <div style="font-size: 2.8rem; font-weight: 700; margin: 5px 0;">₹ <%= String.format("%.2f", customer.getBalance()) %></div>
-            <div style="font-family: monospace; opacity: 1;">Account: <%= customer.getAccountNumber() %></div>
+            <div style="font-size: 2.8rem; font-weight: 700; margin: 5px 0;">
+                ₹ <fmt:formatNumber value="${customerProfile.balance}" pattern="#,##0.00" />
+            </div>
+            <div style="font-family: monospace; opacity: 1;">Account: ${customerProfile.accNo}</div>
         </div>
         <div style="font-size: 4rem; opacity: 0.2;">💰</div>
     </div>
 
     <div class="action-grid">
-        
         <div class="card">
             <div class="card-icon">💵</div>
             <h3>Deposit Funds</h3>
-            <a href="deposit.jsp" class="btn-action" style="background: var(--success-green);">Make a Deposit</a>
+            <a href="/deposit" class="btn-action" style="background: var(--success-green);">Make a Deposit</a>
         </div>
 
         <div class="card">
             <div class="card-icon">🏧</div>
             <h3>Withdraw Cash</h3>
-            <a href="withdraw.jsp" class="btn-action" style="background: var(--withdraw-red);">Make a Withdrawal</a>
+            <a href="/withdraw" class="btn-action" style="background: var(--withdraw-red);">Make a Withdrawal</a>
         </div>
 
         <div class="card">
             <div class="card-icon">💸</div>
             <h3>Transfer Money</h3>
-            <a href="transfermoney.jsp" class="btn-action" style="background: var(--accent-blue);">Send Money</a>
+            <a href="/transfer" class="btn-action" style="background: var(--accent-blue);">Send Money</a>
         </div>
-
     </div>
 
     <div class="statement-box">
@@ -271,34 +249,33 @@
         <table>
             <thead>
                 <tr>
-                    <th>Description</th>
+                    <th>Time</th>
+                    <th>Type</th>
                     <th style="text-align: right;">Amount</th>
                 </tr>
             </thead>
             <tbody>
-                <%
-                    if (miniStatement == null || miniStatement.isEmpty()) {
-                %>
-                        <tr><td colspan="2" style="text-align:center; padding: 20px; color: #999;">No transactions found.</td></tr>
-                <%
-                    } else {
-                        for (Transaction t : miniStatement) {
-                            boolean isCredit = "DEPOSIT".equalsIgnoreCase(t.getTransactionType()) || "RECEIVED".equalsIgnoreCase(t.getTransactionType()) || "TRANSFER IN".equalsIgnoreCase(t.getTransactionType());
-                %>
-                        <tr>
-                            <td style="font-weight: 600; font-size: 0.85rem;"><%= t.getTransactionType() %></td>
-                            <td style="text-align: right; font-weight: 700; color: <%= isCredit ? "var(--success-green)" : "var(--withdraw-red)" %>;">
-                                <%= isCredit ? "+" : "-" %> ₹<%= String.format("%.2f", t.getAmount()) %>
-                            </td>
-                        </tr>
-                <%
-                        }
-                    }
-                %>
+                <c:choose>
+                    <c:when test="${empty recentTransactions}">
+                        <tr><td colspan="3" style="text-align:center; padding: 20px; color: #999;">No transactions found.</td></tr>
+                    </c:when>
+                    <c:otherwise>
+                        <c:forEach var="tx" items="${recentTransactions}">
+                            <c:set var="isCredit" value="${tx.transactionType == 'DEPOSIT' or tx.transactionType == 'Transfer In'}" />
+                            <tr>
+                                <td style="color: #64748b; font-size: 0.8rem;">${tx.timeStamp}</td>
+                                <td style="font-weight: 600; font-size: 0.85rem;">${tx.transactionType}</td>
+                                <td style="text-align: right; font-weight: 700; color: ${isCredit ? 'var(--success-green)' : 'var(--withdraw-red)'};">
+                                    ${isCredit ? "+" : "-"} ₹<fmt:formatNumber value="${tx.amount}" pattern="#,##0.00" />
+                                </td>
+                            </tr>
+                        </c:forEach>
+                    </c:otherwise>
+                </c:choose>
             </tbody>
         </table>
         <div style="text-align: right;">
-            <a href="FullStatementServlet" class="btn-link">View Full Statement</a>
+            <a href="/allTransaction" class="btn-link">View Full Statement</a>
         </div>
     </div>
 

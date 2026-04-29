@@ -1,5 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ taglib uri="jakarta.tags.core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -147,6 +149,20 @@
             color: #94a3b8;
         }
 
+        /* Alert styling in case of error fetching statement */
+        .alert-error {
+            background-color: #ffebee;
+            color: var(--error-red);
+            border: 1px solid #ef9a9a;
+            padding: 14px 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
         /* Printing logic */
         @media print {
             nav, .actions, .footer-note { display: none !important; }
@@ -159,19 +175,24 @@
 <body>
 
     <nav>
-        <a href="DashBoardServlet" class="logo">
+        <a href="/dashboard" class="logo">
             <span>🏦</span> UNITED BANK
         </a>
-        <a href="DashBoardServlet" style="color: var(--primary-navy); text-decoration: none; font-weight: 600; font-size: 0.9rem;">
+        <a href="/dashboard" style="color: var(--primary-navy); text-decoration: none; font-weight: 600; font-size: 0.9rem;">
             &larr; Back to Dashboard
         </a>
     </nav>
 
     <main class="main-content">
+        
+        <c:if test="${not empty error}">
+            <div class="alert-error"><span>⚠️</span> ${error}</div>
+        </c:if>
+
         <div class="header-section">
             <div class="header-info">
                 <h1>Account Statement</h1>
-                <p>Detailed transaction history for Account No: <strong>${sessionScope.accNo}</strong></p>
+                <p>Detailed transaction history for Account No: <strong>${customerProfile.accNo}</strong></p>
             </div>
             <div class="actions">
                 <button class="btn-print" onclick="window.print()">
@@ -198,16 +219,20 @@
                                 <tr>
                                     <td class="txn-id">#${t.transactionId}</td>
                                     <td>${t.timeStamp}</td>
+                                    
                                     <td style="font-weight: 500;">
-                                        ${t.transactionType == 'DEPOSIT' ? 'Credit to Account' : 'Debit from Account'}
+                                        ${t.transactionType == 'DEPOSIT' or t.transactionType == 'Deposit' or t.transactionType == 'Transfer In' ? 'Credit to Account' : 'Debit from Account'}
                                     </td>
+                                    
                                     <td>
-                                        <span class="txn-type ${t.transactionType == 'DEPOSIT' ? 'type-deposit' : 'type-withdraw'}">
+                                        <span class="txn-type ${t.transactionType == 'DEPOSIT' or t.transactionType == 'Deposit' or t.transactionType == 'Transfer In' ? 'type-deposit' : 'type-withdraw'}">
                                             ${t.transactionType}
                                         </span>
                                     </td>
-                                    <td class="amount ${t.transactionType == 'DEPOSIT' ? 'amt-credit' : 'amt-debit'}">
-                                        ${t.transactionType == 'DEPOSIT' ? '+' : '-'} ₹${t.amount}
+                                    
+                                    <td class="amount ${t.transactionType == 'DEPOSIT' or t.transactionType == 'Deposit' or t.transactionType == 'Transfer In' ? 'amt-credit' : 'amt-debit'}">
+                                        ${t.transactionType == 'DEPOSIT' or t.transactionType == 'Deposit' or t.transactionType == 'Transfer In' ? '+' : '-'} 
+                                        <fmt:formatNumber value="${t.amount}" type="currency" currencySymbol="$" />
                                     </td>
                                 </tr>
                             </c:forEach>

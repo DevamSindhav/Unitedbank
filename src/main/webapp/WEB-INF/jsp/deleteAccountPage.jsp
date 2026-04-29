@@ -1,4 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -149,13 +151,12 @@
             from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        /* --------------------------------- */
     </style>
 </head>
 <body>
 
     <nav>
-        <a href="DashBoardServlet" class="logo">
+        <a href="/dashboard" class="logo">
             <span>🏦</span> UNITED BANK
         </a>
         <div style="font-size: 0.85rem; color: var(--error-red); font-weight: 700; letter-spacing: 0.5px;">
@@ -182,26 +183,11 @@
                     <p style="color: #64748b; font-size: 0.9rem;">To confirm your identity, please enter your login password below.</p>
                 </div>
 
-                <% 
-                    String errorParam = request.getParameter("error");
-                    if (errorParam != null) { 
-                        String displayMsg = "An unexpected error occurred.";
-                        
-                        if(errorParam.equals("invalid_password")) {
-                            displayMsg = "Authentication failed. The password you entered is incorrect.";
-                        } else if(errorParam.equals("server_error")) {
-                            displayMsg = "Account deletion failed due to a system error. Please try again or contact support.";
-                        } else if(errorParam.equals("unauthorized")) {
-                            displayMsg = "Your session expired. Please log in to perform this action.";
-                        } else {
-                            displayMsg = "Error: " + errorParam.replace("_", " ");
-                        }
-                %>
-                    <div class="alert-box alert-error"><span>⛔</span> <%= displayMsg %></div>
-                <%  } %>
+                <c:if test="${not empty error}">
+                    <div class="alert-box alert-error"><span>⛔</span> ${error}</div>
+                </c:if>
 
-                <form action="DeleteAccountServlet" method="post" id="deleteForm">
-                    
+                <form action="/processDeleteAccount" method="post" id="deleteForm">
                     <div class="form-group">
                         <label for="password">Confirm Password</label>
                         <input type="password" id="password" name="password" placeholder="Enter your login password" required>
@@ -210,7 +196,7 @@
                     <button type="submit" class="btn-danger">Permanently Delete Account</button>
 
                     <div style="text-align: center; margin-top: 25px;">
-                        <a href="DashBoardServlet" style="color: #64748b; text-decoration: none; font-size: 0.9rem; font-weight: 600;">
+                        <a href="/dashboard" style="color: #64748b; text-decoration: none; font-size: 0.9rem; font-weight: 600;">
                             &larr; Cancel and Return to Safety
                         </a>
                     </div>

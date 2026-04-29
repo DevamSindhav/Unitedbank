@@ -1,19 +1,22 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Withdraw Funds | United Bank</title>
+    <title>Transfer Funds | United Bank</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary-navy: #1a237e;
+            --accent-blue: #3949ab;
             --accent-gold: #ffd700;
             --text-dark: #1e293b;
             --bg-light: #f8fafc;
             --white: #ffffff;
-            --error-red: #c62828; /* Synced with our standard red */
+            --error-red: #c62828; 
             --success-green: #10b981;
         }
 
@@ -67,7 +70,7 @@
 
         /* Left Side Panel */
         .info-panel {
-            background: linear-gradient(135deg, var(--primary-navy) 0%, #283593 100%);
+            background: linear-gradient(135deg, var(--primary-navy) 0%, var(--accent-blue) 100%);
             color: var(--white);
             padding: 45px;
             display: flex;
@@ -76,12 +79,13 @@
         }
 
         .info-panel h2 { font-size: 1.8rem; margin-bottom: 25px; }
+        
         .secure-item {
             display: flex;
             align-items: center;
             gap: 15px;
             margin-bottom: 20px;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.1);
             padding: 15px;
             border-radius: 12px;
         }
@@ -114,17 +118,16 @@
             transition: all 0.3s ease;
         }
 
-        /* Increased padding-left to 40px to accommodate the Rupee symbol */
         .form-group input.amount-input { padding-left: 40px; }
 
         .form-group input:focus {
             outline: none;
-            border-color: var(--primary-navy);
-            box-shadow: 0 0 0 4px rgba(26, 35, 126, 0.05);
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 4px rgba(57, 73, 171, 0.1);
         }
 
-        .btn-withdraw {
-            background: var(--primary-navy);
+        .btn-transfer {
+            background: var(--accent-blue);
             color: var(--white);
             width: 100%;
             padding: 16px;
@@ -137,13 +140,13 @@
             margin-top: 15px;
         }
 
-        .btn-withdraw:hover {
-            background: #1e293b;
+        .btn-transfer:hover {
+            background: var(--primary-navy);
             transform: translateY(-2px);
-            box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 15px rgba(26, 35, 126, 0.2);
         }
 
-        /* --- UNIVERSAL ALERT COMPONENT --- */
+        /* --- ALERTS --- */
         .alert-box {
             padding: 14px 20px;
             border-radius: 8px;
@@ -162,82 +165,76 @@
             border: 1px solid #ef9a9a;
         }
 
+        .alert-success {
+            background-color: #ecfdf5;
+            color: var(--success-green);
+            border: 1px solid #a7f3d0;
+        }
+
         @keyframes fadeInDown {
             from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        /* --------------------------------- */
     </style>
 </head>
 <body>
 
     <nav>
-        <a href="DashBoardServlet" class="logo">
+        <a href="/dashboard" class="logo">
             <span>🏦</span> UNITED BANK
         </a>
         <div style="font-size: 0.85rem; color: #64748b; font-weight: 600; letter-spacing: 0.5px;">
-            SECURE TRANSACTION MODE
+            SECURE PEER-TO-PEER NETWORK
         </div>
     </nav>
 
     <div class="container">
         <div class="form-wrapper">
             <div class="info-panel">
-                <h2>Secure Withdrawal</h2>
+                <h2>Instant Transfer</h2>
                 <div class="secure-item">
-                    <span style="font-size: 1.5rem;">📱</span>
+                    <span style="font-size: 1.5rem;">💸</span>
                     <div>
-                        <strong style="display:block;">PIN Verification</strong>
-                        <small style="opacity:0.8;">Required for all debit actions.</small>
+                        <strong style="display:block;">Lightning Fast</strong>
+                        <small style="opacity:0.9;">Send money instantly 24/7.</small>
                     </div>
                 </div>
                 <div class="secure-item">
-                    <span style="font-size: 1.5rem;">🛡️</span>
+                    <span style="font-size: 1.5rem;">🔄</span>
                     <div>
-                        <strong style="display:block;">Encrypted Process</strong>
-                        <small style="opacity:0.8;">End-to-end transaction security.</small>
+                        <strong style="display:block;">Zero Fees</strong>
+                        <small style="opacity:0.9;">Internal transfers are completely free.</small>
                     </div>
                 </div>
-                <p style="margin-top: 20px; font-size: 0.9rem; opacity: 0.7; line-height: 1.6;">
-                    Please ensure you have sufficient balance before proceeding. Withdrawal limits may apply based on your account type.
+                <p style="margin-top: 20px; font-size: 0.9rem; opacity: 0.8; line-height: 1.6;">
+                    Ensure the recipient's account number is correct. Transfers are processed immediately and cannot be undone.
                 </p>
             </div>
 
             <div class="form-panel">
                 <div class="form-header">
-                    <h1>Withdraw Funds</h1>
-                    <p style="color: #64748b; font-size: 0.95rem;">Debit money directly from your account.</p>
+                    <h1>Send Money</h1>
+                    <p style="color: #64748b; font-size: 0.95rem;">Transfer funds to another United Bank account.</p>
                 </div>
 
-                <% 
-                    String errorParam = request.getParameter("error");
-                    if (errorParam != null) { 
-                        String displayMsg = "An unexpected error occurred.";
-                        
-                        if(errorParam.equals("not_enough_balance")) {
-                            displayMsg = "Insufficient funds. Please check your balance and try again.";
-                        } 
-                        else if(errorParam.equals("invalid_pin")) {
-                            displayMsg = "The transaction PIN you entered is incorrect.";
-                        } 
-                        else if(errorParam.equals("invalid_amount") || errorParam.equals("invalid_input")) {
-                            displayMsg = "Invalid amount entered. Please use valid numbers.";
-                        } 
-                        else if(errorParam.equals("server_error")) {
-                            displayMsg = "Transaction failed due to a server error. Please try again.";
-                        } 
-                        else {
-                            displayMsg = "Error: " + errorParam.replace("_", " ");
-                        }
-                %>
-                    <div class="alert-box alert-error"><span>⚠️</span> <%= displayMsg %></div>
-                <%  } %>
+                <c:if test="${not empty error}">
+                    <div class="alert-box alert-error"><span>⚠️</span> ${error}</div>
+                </c:if>
 
-                <form action="WithdrawServlet" method="post" id="withdrawForm">
+                <c:if test="${not empty transfer}">
+                    <div class="alert-box alert-success"><span>✅</span> Transfer successful!</div>
+                </c:if>
+
+                <form action="/processTransfer" method="post" id="transferForm">
                     <div class="form-group">
-                        <label for="amount">Withdrawal Amount</label>
+                        <label for="receiverAccNo">Recipient Account Number</label>
+                        <input type="number" id="receiverAccNo" name="receiverAccNo" placeholder="Enter account number" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="amount">Transfer Amount</label>
                         <div class="input-wrapper">
-                            <span class="currency-symbol">₹</span>
+                            <span class="currency-symbol">$</span>
                             <input type="number" step="0.01" id="amount" name="amount" class="amount-input" placeholder="0.00" required>
                         </div>
                     </div>
@@ -247,11 +244,11 @@
                         <input type="password" id="pin" name="pin" maxlength="4" pattern="\d{4}" inputmode="numeric" placeholder="••••" required>
                     </div>
 
-                    <button type="submit" class="btn-withdraw">Authorize Withdrawal</button>
+                    <button type="submit" class="btn-transfer">Verify and Transfer</button>
 
                     <div style="text-align: center; margin-top: 25px;">
-                        <a href="DashBoardServlet" style="color: #64748b; text-decoration: none; font-size: 0.9rem; font-weight: 600;">
-                            &larr; Back to Dashboard
+                        <a href="/dashboard" style="color: #64748b; text-decoration: none; font-size: 0.9rem; font-weight: 600;">
+                            &larr; Cancel and Return
                         </a>
                     </div>
                 </form>
@@ -260,11 +257,13 @@
     </div>
 
     <footer style="text-align: center; padding: 25px; color: #94a3b8; font-size: 0.8rem;">
-        &copy; 2026 United Bank Limited. Regulated by the Reserve Bank of India (RBI).
+        &copy; 2026 United Bank Limited. Regulated by the Reserve Bank.
     </footer>
 
     <script>
-        document.getElementById('withdrawForm').onsubmit = function() {
+        document.getElementById('transferForm').onsubmit = function() {
+            // Updated to fetch the correct ID
+            const receiverAccNo = document.getElementById('receiverAccNo').value;
             const amount = document.getElementById('amount').value;
             const pin = document.getElementById('pin').value;
 
@@ -276,7 +275,11 @@
                 alert("Transaction PIN must be a 4-digit number.");
                 return false;
             }
-            return confirm("Are you sure you want to withdraw ₹" + amount + "?");
+            if (receiverAccNo.trim() === "") {
+                alert("Please enter a valid recipient account number.");
+                return false;
+            }
+            return confirm("Confirm transfer of $" + amount + " to Account No. " + receiverAccNo + "?");
         };
     </script>
 </body>

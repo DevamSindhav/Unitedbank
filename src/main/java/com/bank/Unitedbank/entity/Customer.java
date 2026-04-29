@@ -38,8 +38,8 @@ public class Customer{
 	@Column(name = "account_number")
 	private Integer accNo;
 	
-	@Column(name = "name")
-	private String name;
+	@Column(name = "fullName")
+	private String fullName;
 	
 	@Column(name = "email")
 	private String email;

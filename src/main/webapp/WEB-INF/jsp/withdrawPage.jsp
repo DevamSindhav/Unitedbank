@@ -1,20 +1,22 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deposit Funds | United Bank</title>
+    <title>Withdraw Funds | United Bank</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary-navy: #1a237e;
-            --accent-blue: #3949ab;
             --accent-gold: #ffd700;
             --text-dark: #1e293b;
             --bg-light: #f8fafc;
             --white: #ffffff;
             --error-red: #c62828;
+            --success-green: #10b981;
         }
 
         body {
@@ -65,9 +67,9 @@
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
         }
 
-        /* Left Side Panel - Now updated to Navy/Blue gradient */
+        /* Left Side Panel */
         .info-panel {
-            background: linear-gradient(135deg, var(--primary-navy) 0%, var(--accent-blue) 100%);
+            background: linear-gradient(135deg, var(--primary-navy) 0%, #283593 100%);
             color: var(--white);
             padding: 45px;
             display: flex;
@@ -75,13 +77,14 @@
             justify-content: center;
         }
 
-        .info-panel h2 { font-size: 1.8rem; margin-bottom: 25px; font-weight: 700; }
-        .feature-item {
+        .info-panel h2 { font-size: 1.8rem; margin-bottom: 25px; }
+        
+        .secure-item {
             display: flex;
             align-items: center;
             gap: 15px;
             margin-bottom: 20px;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
             padding: 15px;
             border-radius: 12px;
         }
@@ -116,15 +119,13 @@
 
         .form-group input.amount-input { padding-left: 40px; }
 
-        /* Updated focus state to Navy */
         .form-group input:focus {
             outline: none;
             border-color: var(--primary-navy);
-            box-shadow: 0 0 0 4px rgba(26, 35, 126, 0.1);
+            box-shadow: 0 0 0 4px rgba(26, 35, 126, 0.05);
         }
 
-        /* Updated button to Navy */
-        .btn-deposit {
+        .btn-withdraw {
             background: var(--primary-navy);
             color: var(--white);
             width: 100%;
@@ -138,13 +139,13 @@
             margin-top: 15px;
         }
 
-        .btn-deposit:hover {
-            background: #283593;
+        .btn-withdraw:hover {
+            background: #1e293b;
             transform: translateY(-2px);
-            box-shadow: 0 10px 15px rgba(26, 35, 126, 0.2);
+            box-shadow: 0 10px 15px rgba(0,0,0,0.1);
         }
 
-        /* --- UNIVERSAL ALERT COMPONENT --- */
+        /* --- ALERTS --- */
         .alert-box {
             padding: 14px 20px;
             border-radius: 8px;
@@ -163,89 +164,85 @@
             border: 1px solid #ef9a9a;
         }
 
+        .alert-success {
+            background-color: #ecfdf5;
+            color: var(--success-green);
+            border: 1px solid #a7f3d0;
+        }
+
         @keyframes fadeInDown {
             from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        /* --------------------------------- */
     </style>
 </head>
 <body>
 
     <nav>
-        <a href="DashBoardServlet" class="logo">
+        <a href="/dashboard" class="logo">
             <span>🏦</span> UNITED BANK
         </a>
         <div style="font-size: 0.85rem; color: #64748b; font-weight: 600; letter-spacing: 0.5px;">
-            VERIFIED SECURE DEPOSIT
+            SECURE TRANSACTION MODE
         </div>
     </nav>
 
     <div class="container">
         <div class="form-wrapper">
             <div class="info-panel">
-                <h2>Easy Deposit</h2>
-                <div class="feature-item">
-                    <span style="font-size: 1.5rem;">⚡</span>
+                <h2>Secure Withdrawal</h2>
+                <div class="secure-item">
+                    <span style="font-size: 1.5rem;">📱</span>
                     <div>
-                        <strong style="display:block;">Instant Credit</strong>
-                        <small style="opacity:0.9;">Funds reflect in your account immediately.</small>
+                        <strong style="display:block;">PIN Verification</strong>
+                        <small style="opacity:0.8;">Required for all debit actions.</small>
                     </div>
                 </div>
-                <div class="feature-item">
-                    <span style="font-size: 1.5rem;">✅</span>
+                <div class="secure-item">
+                    <span style="font-size: 1.5rem;">🛡️</span>
                     <div>
-                        <strong style="display:block;">Zero Charges</strong>
-                        <small style="opacity:0.9;">No hidden fees for online deposits.</small>
+                        <strong style="display:block;">Encrypted Process</strong>
+                        <small style="opacity:0.8;">End-to-end transaction security.</small>
                     </div>
                 </div>
-                <p style="margin-top: 20px; font-size: 0.9rem; opacity: 0.8; line-height: 1.6;">
-                    Make sure the amount entered is correct. Once authorized, the transaction cannot be reversed automatically.
+                <p style="margin-top: 20px; font-size: 0.9rem; opacity: 0.7; line-height: 1.6;">
+                    Please ensure you have sufficient balance before proceeding. Withdrawal limits may apply based on your account type.
                 </p>
             </div>
 
             <div class="form-panel">
                 <div class="form-header">
-                    <h1>Add Money</h1>
-                    <p style="color: #64748b; font-size: 0.95rem;">Enter the amount to credit your account.</p>
+                    <h1>Withdraw Funds</h1>
+                    <p style="color: #64748b; font-size: 0.95rem;">Debit money directly from your account.</p>
                 </div>
 
-                <% 
-                    String errorParam = request.getParameter("error");
-                    if (errorParam != null) { 
-                        String displayMsg = "An unexpected error occurred.";
-                        
-                        if(errorParam.equals("invalid_amount") || errorParam.equals("invalid_input")) {
-                            displayMsg = "Invalid amount entered. Please use valid numbers.";
-                        } 
-                        else if(errorParam.equals("server_error")) {
-                            displayMsg = "Transaction failed due to a server error. Please try again later.";
-                        } 
-                        else {
-                            displayMsg = "Error: " + errorParam.replace("_", " ");
-                        }
-                %>
-                    <div class="alert-box alert-error"><span>⚠️</span> <%= displayMsg %></div>
-                <%  } %>
+                <c:if test="${not empty error}">
+                    <div class="alert-box alert-error"><span>⚠️</span> ${error}</div>
+                </c:if>
 
-                <form action="DepositServlet" method="post" id="depositForm">
+                <c:if test="${not empty param.withdraw}">
+                    <div class="alert-box alert-success"><span>✅</span> Withdrawal successful!</div>
+                </c:if>
+
+                <form action="/processWithdraw" method="post" id="withdrawForm">
                     <div class="form-group">
-                        <label for="amount">Deposit Amount</label>
+                        <label for="amount">Withdrawal Amount</label>
                         <div class="input-wrapper">
-                            <span class="currency-symbol">₹</span>
-                            <input type="number" step="100" id="amount" name="amount" class="amount-input" placeholder="0.00" required>
+                            <span class="currency-symbol">$</span>
+                            <input type="number" step="0.01" id="amount" name="amount" class="amount-input" placeholder="0.00" required>
                         </div>
                     </div>
 
-                    <p style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 20px;">
-                        By clicking below, you authorize a credit transaction to your account ending in ${sessionScope.accNo % 10000}.
-                    </p>
+                    <div class="form-group">
+                        <label for="pin">Transaction PIN</label>
+                        <input type="password" id="pin" name="pin" maxlength="4" pattern="\d{4}" inputmode="numeric" placeholder="••••" required>
+                    </div>
 
-                    <button type="submit" class="btn-deposit">Confirm & Deposit</button>
+                    <button type="submit" class="btn-withdraw">Authorize Withdrawal</button>
 
                     <div style="text-align: center; margin-top: 25px;">
-                        <a href="DashBoardServlet" style="color: #64748b; text-decoration: none; font-size: 0.9rem; font-weight: 600;">
-                            &larr; Cancel and Return
+                        <a href="/dashboard" style="color: #64748b; text-decoration: none; font-size: 0.9rem; font-weight: 600;">
+                            &larr; Back to Dashboard
                         </a>
                     </div>
                 </form>
@@ -254,17 +251,23 @@
     </div>
 
     <footer style="text-align: center; padding: 25px; color: #94a3b8; font-size: 0.8rem;">
-        &copy; 2026 United Bank Limited. Secure Gateway 2.0.
+        &copy; 2026 United Bank Limited. Regulated by the Reserve Bank.
     </footer>
 
     <script>
-        document.getElementById('depositForm').onsubmit = function() {
+        document.getElementById('withdrawForm').onsubmit = function() {
             const amount = document.getElementById('amount').value;
+            const pin = document.getElementById('pin').value;
+
             if (parseFloat(amount) <= 0) {
-                alert("Please enter a valid deposit amount greater than ₹0.");
+                alert("Please enter an amount greater than zero.");
                 return false;
             }
-            return confirm("Confirm deposit of ₹" + amount + " to your account?");
+            if (!/^\d{4}$/.test(pin)) {
+                alert("Transaction PIN must be a 4-digit number.");
+                return false;
+            }
+            return confirm("Are you sure you want to withdraw $" + amount + "?");
         };
     </script>
 </body>

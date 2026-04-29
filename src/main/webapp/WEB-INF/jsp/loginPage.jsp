@@ -1,4 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -154,30 +156,23 @@
         </div>
         <h2>Sign in to Online Banking</h2>
 
-        <% 
-            String status = request.getParameter("status");
-            String error = request.getParameter("error");
-            
-            if (status != null) { 
-                if(status.equals("password_updated")) {
-        %>
-            <div class="status-msg msg-success"><span>✅</span> Password changed successfully. Please log in again.</div>
-        <%      } 
-            } else if (error != null) { 
-                String displayMsg = "";
-                if(error.equals("invalid_password")) displayMsg = "Invalid email or password. Please try again.";
-                else if(error.equals("user_not_registered")) displayMsg = "User not registered. Please open an account.";
-                else if(error.equals("unauthorized")) displayMsg = "Your session has expired. Please log in to continue.";
-                else if(error.equals("server_error")) displayMsg = "A server error occurred. Please try again later.";
-                
-                if(!displayMsg.isEmpty()) {
-        %>
-            <div class="status-msg msg-error"><span>⚠️</span> <%= displayMsg %></div>
-        <%      }
-            } 
-        %>
+        <c:if test="${not empty error}">
+            <div class="status-msg msg-error"><span>⚠️</span> ${error}</div>
+        </c:if>
 
-        <form action="LoginServlet" method="post">
+        <c:if test="${not empty registeredUser}">
+            <div class="status-msg msg-success"><span>✅</span> Registration successful! Please log in.</div>
+        </c:if>
+
+        <c:if test="${not empty param.passwordUpdated}">
+            <div class="status-msg msg-success"><span>✅</span> Password changed successfully. Please log in again.</div>
+        </c:if>
+        
+        <c:if test="${not empty param.pinUpdated}">
+            <div class="status-msg msg-success"><span>✅</span> PIN changed successfully. Please log in again.</div>
+        </c:if>
+
+        <form action="/processlogin" method="post">
             <div class="input-group">
                 <label>Email</label>
                 <input type="email" name="email" placeholder="Enter your email" required>
@@ -192,7 +187,7 @@
         </form>
 
         <div class="footer-links">
-            <p>New user? <a href="register.jsp">Open an account here</a></p>
+            <p>New user? <a href="/register">Open an account here</a></p>
         </div>
     </div>
 

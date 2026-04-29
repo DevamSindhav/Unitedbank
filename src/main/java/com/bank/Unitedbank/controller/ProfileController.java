@@ -47,7 +47,7 @@ public class ProfileController {
 			
 			customerService.passwordUpdate(accNo, oldPass, newPass);
 			session.invalidate();
-			redirectAttributes.addFlashAttribute("passwordUpdated" , true);
+			redirectAttributes.addAttribute("passwordUpdated" , true);
 			return "redirect:/login";
 			
 		}catch(RuntimeException e) {
@@ -84,7 +84,7 @@ public class ProfileController {
 			customerService.pinUpdate(accNo, password, newPin);
 				
 			redirectAttributes.addFlashAttribute("pinUpdated" , true);
-			return "redirect:/logout";
+			return "redirect:/updatePin";
 				
 		}catch(RuntimeException e) {
 				
@@ -119,7 +119,7 @@ public class ProfileController {
 			customerService.deleteAccount(accNo, password);
 			
 			session.invalidate();
-			redirectAttributes.addFlashAttribute("accountDeleted" , true);
+			redirectAttributes.addAttribute("accountDeleted" , true);
 			return "redirect:/";
 			
 		}catch(RuntimeException e) {

@@ -1,4 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -113,61 +115,43 @@
         </div>
         <div class="card-body p-4">
             
-            <% 
-                String errorParam = request.getParameter("error");
-                if(errorParam != null) { 
-                    String displayMsg = "An unexpected error occurred. Please try again.";
-                    
-                    if(errorParam.equals("invalid_password")) {
-                        displayMsg = "Your password must be between 8 and 16 characters.";
-                    } else if(errorParam.equals("invalid_pin")) {
-                        displayMsg = "Your security PIN must be exactly 4 digits.";
-                    } else if(errorParam.equals("underage")) {
-                        displayMsg = "You must be at least 18 years old to open an account.";
-                    } else if(errorParam.contains("already") || errorParam.equals("email_taken")) {
-                        displayMsg = "This email is already registered. Please proceed to login.";
-                    } else if(errorParam.contains("went wrong") || errorParam.contains("Server Error") || errorParam.equals("server_error")) {
-                        displayMsg = "Database connection failed. Please try again later.";
-                    } else {
-                        displayMsg = errorParam.replace("_", " ");
-                    }
-            %>
-                <div class="alert-box alert-error"><span>⚠️</span> <%= displayMsg %></div>
-            <% } %>
+            <c:if test="${not empty error}">
+                <div class="alert-box alert-error"><span>⚠️</span> ${error}</div>
+            </c:if>
 
             <div class="progress">
                 <div id="progressBar" class="progress-bar" role="progressbar" style="width: 50%;"></div>
             </div>
 
-            <form action="RegisterServlet" method="POST" id="regForm">
+            <form action="/register" method="POST" id="regForm">
                 
                 <div class="step-content active" id="step1">
                     <h5 class="mb-4 text-primary">Step 1: Personal Information</h5>
                     <div class="mb-3">
                         <label class="form-label">Full Name</label>
-                        <input type="text" name="fullName" class="form-control" placeholder="John Doe" required>
+                        <input type="text" name="fullName" class="form-control" value="${customer.fullName}" placeholder="John Doe" required>
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Email</label>
-                            <input type="email" name="email" class="form-control" placeholder="john@example.com" required>
+                            <input type="email" name="email" class="form-control" value="${customer.email}" placeholder="john@example.com" required>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Mobile Number</label>
-                            <input type="tel" name="mobileNo" class="form-control" placeholder="+123456789" required>
+                            <input type="tel" name="mobileNo" class="form-control" value="${customer.mobileNo}" placeholder="+123456789" required>
                         </div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Date of Birth</label>
-                        <input type="date" name="dob" id="dobInput" class="form-control" required>
+                        <input type="date" name="dob" id="dobInput" class="form-control" value="${customer.dob}" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Address</label>
-                        <textarea name="address" class="form-control" rows="2" required></textarea>
+                        <textarea name="address" class="form-control" rows="2" required>${customer.address}</textarea>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Postal Code</label>
-                        <input type="text" name="postalCode" class="form-control" required>
+                        <input type="text" name="postalCode" class="form-control" value="${customer.postalCode}" required>
                     </div>
                     <div class="d-flex justify-content-end">
                         <button type="button" class="btn btn-next px-4" onclick="nextStep()">Next: Security Details &rarr;</button>
@@ -179,15 +163,15 @@
                     <div class="mb-3">
                         <label class="form-label">Account Type</label>
                         <select name="accType" class="form-select" required>
-                            <option value="Savings">Savings Account</option>
-                            <option value="Current">Current Account</option>
+                            <option value="Savings" ${customer.accType == 'Savings' ? 'selected' : ''}>Savings Account</option>
+                            <option value="Current" ${customer.accType == 'Current' ? 'selected' : ''}>Current Account</option>
                         </select>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Initial Balance (Minimum $100)</label>
                         <div class="input-group">
                             <span class="input-group-text">$</span>
-                            <input type="number" name="balance" class="form-control" min="100" step="0.01" required>
+                            <input type="number" name="balance" class="form-control" value="${customer.balance}" min="100" step="0.01" required>
                         </div>
                     </div>
 

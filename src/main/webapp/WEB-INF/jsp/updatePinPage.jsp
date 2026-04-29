@@ -1,10 +1,12 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Update Password | United Bank</title>
+    <title>Update Transaction PIN | United Bank</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -13,7 +15,7 @@
             --text-dark: #1e293b;
             --bg-light: #f8fafc;
             --white: #ffffff;
-            --error-red: #c62828; /* Synced with our standard red */
+            --error-red: #c62828;
             --success-green: #10b981;
         }
 
@@ -65,9 +67,9 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
         }
 
-        /* Left side - Information */
+        /* Left Side Panel */
         .info-panel {
-            background: linear-gradient(135deg, var(--primary-navy) 0%, #3949ab 100%);
+            background: linear-gradient(135deg, #0d47a1 0%, var(--primary-navy) 100%);
             color: var(--white);
             padding: 40px;
             display: flex;
@@ -76,14 +78,19 @@
         }
 
         .info-panel h2 { margin-bottom: 20px; font-weight: 700; }
-        .info-panel ul { padding-left: 20px; opacity: 0.9; }
-        .info-panel li { margin-bottom: 12px; }
+        .info-panel p { opacity: 0.9; line-height: 1.8; }
+        .pin-hint {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 4px solid var(--accent-gold);
+        }
 
-        /* Right side - The Form */
+        /* Right Side Form */
         .form-panel { padding: 40px; }
-
         .form-header { margin-bottom: 30px; }
-        .form-header h1 { font-size: 1.5rem; color: var(--primary-navy); margin-bottom: 5px; }
+        .form-header h1 { font-size: 1.5rem; color: var(--primary-navy); margin-bottom: 8px; }
 
         .form-group { margin-bottom: 20px; }
         .form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem; }
@@ -95,12 +102,13 @@
             border-radius: 8px;
             font-size: 1rem;
             box-sizing: border-box;
-            transition: border-color 0.3s;
+            transition: all 0.3s ease;
         }
 
         .form-group input:focus {
             outline: none;
             border-color: var(--primary-navy);
+            box-shadow: 0 0 0 3px rgba(26, 35, 126, 0.1);
         }
 
         .btn-update {
@@ -113,12 +121,14 @@
             font-weight: 600;
             font-size: 1rem;
             cursor: pointer;
-            transition: transform 0.2s, background 0.3s;
+            transition: all 0.3s;
+            margin-top: 10px;
         }
 
         .btn-update:hover {
             background: #283593;
             transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(26, 35, 126, 0.2);
         }
 
         /* --- UNIVERSAL ALERT COMPONENT --- */
@@ -140,102 +150,109 @@
             border: 1px solid #ef9a9a;
         }
 
+        .alert-success {
+            background-color: #ecfdf5;
+            color: var(--success-green);
+            border: 1px solid #a7f3d0;
+        }
+
         @keyframes fadeInDown {
             from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        /* --------------------------------- */
     </style>
 </head>
 <body>
 
     <nav>
-        <a href="DashBoardServlet" class="logo">
+        <a href="/dashboard" class="logo">
             <span>🏦</span> UNITED BANK
         </a>
-        <div style="font-size: 0.9rem; color: #64748b; font-weight: 600;">
-            Secure Session Active
+        <div style="font-size: 0.85rem; color: #64748b; font-weight: 600;">
+            <i class="fas fa-user-lock"></i> ACCOUNT SETTINGS
         </div>
     </nav>
 
     <div class="container">
         <div class="form-wrapper">
             <div class="info-panel">
-                <h2>Security Shield</h2>
-                <p>Keeping your account safe is our top priority. When updating your password, ensure it follows these rules:</p>
-                <ul>
-                    <li>Minimum 8 characters long</li>
-                    <li>Include at least one uppercase letter</li>
-                    <li>Include one number and one symbol</li>
-                    <li>Do not use your date of birth or name</li>
-                </ul>
+                <h2>Transaction PIN</h2>
+                <p>Your PIN is required for every withdrawal and transfer. Keeping it updated prevents unauthorized access to your funds.</p>
+
+                <div class="pin-hint">
+                    <strong>💡 Security Tip:</strong>
+                    <p style="font-size: 0.85rem; margin-top: 10px; margin-bottom: 0;">
+                        Avoid simple sequences like '1234' or your birth year. Change your PIN every 90 days for maximum security.
+                    </p>
+                </div>
             </div>
 
             <div class="form-panel">
                 <div class="form-header">
-                    <h1>Change Password</h1>
-                    <p style="color: #64748b; font-size: 0.9rem;">Please enter your current and new credentials.</p>
+                    <h1>Update PIN</h1>
+                    <p style="color: #64748b; font-size: 0.9rem;">Verify your password to set a new PIN.</p>
                 </div>
 
-                <% 
-                    String errorParam = request.getParameter("error");
-                    if (errorParam != null) { 
-                        String displayMsg = "An unexpected error occurred.";
-                        
-                        if(errorParam.equals("invalid_password") || errorParam.equals("invalid_credentials")) {
-                            displayMsg = "The current password you entered is incorrect.";
-                        } 
-                        else if(errorParam.equals("server_error")) {
-                            displayMsg = "System update failed due to a server error. Please try again.";
-                        } 
-                        else {
-                            displayMsg = "Error: " + errorParam.replace("_", " ");
-                        }
-                %>
-                    <div class="alert-box alert-error"><span>⚠️</span> <%= displayMsg %></div>
-                <%  } %>
+                <c:if test="${not empty error}">
+                    <div class="alert-box alert-error"><span>⚠️</span> ${error}</div>
+                </c:if>
 
-                <form action="UpdatePasswordServlet" method="post">
+                <c:if test="${not empty pinUpdated}">
+                    <div class="alert-box alert-success"><span>✅</span> PIN successfully updated!</div>
+                </c:if>
+
+                <form action="/processUpdatePin" method="post" id="pinForm">
                     <div class="form-group">
-                        <label for="oldPassword">Current Password</label>
-                        <input type="password" id="oldPassword" name="oldPassword" placeholder="••••••••" required>
+                        <label for="password">Login Password</label>
+                        <input type="password" id="password" name="password" placeholder="Enter current password" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="newPassword">New Password</label>
-                        <input type="password" id="newPassword" name="newPassword" placeholder="••••••••" required>
+                        <label for="newPin">New 4-Digit PIN</label>
+                        <input type="password" id="newPin" name="newPin"
+                               pattern="\d{4}" maxlength="4" inputmode="numeric"
+                               placeholder="••••" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="confirmPassword">Confirm New Password</label>
-                        <input type="password" id="confirmPassword" placeholder="••••••••" required>
+                        <label for="confirmPin">Confirm New PIN</label>
+                        <input type="password" id="confirmPin"
+                               pattern="\d{4}" maxlength="4" inputmode="numeric"
+                               placeholder="••••" required>
                     </div>
 
-                    <button type="submit" class="btn-update">Update Securely</button>
+                    <button type="submit" class="btn-update">Change PIN Now</button>
 
                     <div style="text-align: center; margin-top: 20px;">
-                        <a href="DashBoardServlet" style="color: #64748b; text-decoration: none; font-size: 0.85rem; font-weight: 600;">&larr; Cancel and Return</a>
+                        <a href="/dashboard" style="color: #64748b; text-decoration: none; font-size: 0.85rem; font-weight: 500;">
+                            &larr; Return to Dashboard
+                        </a>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
-    <footer style="text-align: center; padding: 20px; color: #94a3b8; font-size: 0.8rem;">
-        &copy; 2026 United Bank Security Protocol. Verified by RSA-256.
+    <footer style="text-align: center; padding: 25px; color: #94a3b8; font-size: 0.8rem; background: var(--white); border-top: 1px solid #e2e8f0;">
+        &copy; 2026 United Bank. Protected by 256-bit SSL Encryption.
     </footer>
 
     <script>
-        // Simple front-end validation to check if passwords match before sending to servlet
-        const form = document.querySelector('form');
-        const newPass = document.getElementById('newPassword');
-        const confirmPass = document.getElementById('confirmPassword');
+        document.getElementById('pinForm').onsubmit = function(e) {
+            const pin = document.getElementById('newPin').value;
+            const confirm = document.getElementById('confirmPin').value;
+            const password = document.getElementById('password').value;
 
-        form.onsubmit = function(e) {
-            if (newPass.value !== confirmPass.value) {
-                alert("New password and confirmation do not match!");
+            if (pin !== confirm) {
+                alert("The new PINs do not match. Please try again.");
                 return false;
             }
+
+            if (!/^\d{4}$/.test(pin)) {
+                alert("PIN must be exactly 4 digits.");
+                return false;
+            }
+
             return true;
         };
     </script>
