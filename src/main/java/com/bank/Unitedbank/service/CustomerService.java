@@ -66,10 +66,15 @@ public class CustomerService {
 		return savedCustomer;
 	}
 	
-	
-	public Customer loginValidation(Integer accNo , String plainPass) {
+	public Customer getCustomerById(Integer accNo) {
 		
-		Customer customer = customerRepository.findById(accNo)
+		return customerRepository.findById(accNo)
+				.orElseThrow(() -> new RuntimeException("Account not found."));
+	}
+	
+	public Customer loginValidation(String email , String plainPass) {
+		
+		Customer customer = customerRepository.findByEmail(email)
 							.orElseThrow(() -> new RuntimeException("Account not found."));
 		
 		boolean isMatch = passwordEncoder.matches(plainPass , customer.getPassword() );
